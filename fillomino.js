@@ -170,8 +170,8 @@ function checkStatus(element, index, array) {
     if (element.value != 1) {
         return element.status == 0
     }
-    //GLUPAKU GLUPI: OVDE MORA DA VRATIS FALSE, NE TRUE!
-    //Oko toga se vrtis dva sata. Jer ako vratis true
+    //Obrati paznju, ovde moras da vratis `false`, ne `true`.
+    //Jer ako vratis true
     //ispasce da postoji neki koji nije spojen, a kec
     //je uvek spojen.
     return false
