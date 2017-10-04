@@ -1,5 +1,47 @@
+function displayBoard(board, index, number) {
+  const boardClone = [...board.map(row => ([...row]))]
+  boardClone[index[0]][index[1]] = { value: number, status: 0 }
+  console.log('Displej: ', boardClone)
+  return boardClone
+}
+
+function countTakenFields(board) {
+  let counter = 0
+  board.forEach((row) => {
+    row.forEach((cell) => {
+      if (cell.value !== undefined) {
+        counter += 1
+      }
+    })
+  })
+  return counter
+}
+function checkBoundaries(board, i, j) {
+  return i >= 0 && i < board.length && j >= 0 && j < board.length
+}
+
+function setStatusToZero(board, i, j, number) {
+  if (number !== 1) {
+    if (checkBoundaries(board, i, j) && board[i][j].value !== undefined && board[i][j].status === 1 && board[i][j].value === number) {
+      board[i][j].status = 0
+      if (j > 0) {
+        setStatusToZero(board, i, j - 1, number)
+      }
+      if (j < board.length - 1) {
+        setStatusToZero(board, i, j + 1, number)
+      }
+      if (i < board.length - 1) {
+        setStatusToZero(board, i + 1, j, number)
+      }
+      if (i > 0) {
+        setStatusToZero(board, i - 1, j, number)
+      }
+    }
+  }
+}
+
 Vue.component('fillomino-board', {
-    template: `
+  template: `
     <div id="fillominoBoard" class="filominoBoard">
       <div class="board-row" v-for="(row, i) in values">
         <board-cell class="board-cell" v-for="(cell, j) of row"
@@ -10,213 +52,153 @@ Vue.component('fillomino-board', {
       </div>
     </div>
     `,
-    props: ['values'],
-})
+  props: ['values'],
+});
 
 Vue.component('board-cell', {
-    template: `
+  template: `
     <div class="board-cell">
       <span> {{ symbol.value }} </span>
       <!-- <button id='reset'>x</button> -->
     </div>
     `,
-    props: ['symbol']
-})
+  props: ['symbol'],
+});
 
-const tile = (value = undefined, status = 0, default_ = value != undefined) => ({value, status, default_})
+const tile = (value = undefined, status = 0, default_ = value !== undefined) => ({ value, status, default_ });
 
 new Vue({
-    el: '#Fillomino',
-    data: {
-        // Status 0 => element nije clan poliomina
-        // Status 1 => element jeste clan poliomina
-        startingBoard: [
-            [tile(1), {}, {}, {}, {}, {}, {}, {}],
-            [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
-            [{}, tile(3), tile(1), tile(7), tile(7), {}, tile(5), {}],
-            [tile(1), {}, {}, {}, {}, {}, {}, {}],
-            [{}, tile(1), {}, {}, tile(4), tile(1), tile(5), {}],
-            [{}, tile(4), tile(6), tile(4), tile(1), {}, {}, {}],
-            [{}, {}, {}, tile(1), {}, tile(3), tile(1), tile(6)],
-            [tile(1), {}, {}, {}, {}, tile(1), {}, {}]
-        ],
-        number: 0,
-        message: '',
-        
-        
+  el: '#Fillomino',
+  data: {
+  // Status 0 => element nije clan poliomina
+  // Status 1 => element jeste clan poliomina
+    startingBoard: [
+      [tile(1), {}, {}, {}, {}, {}, {}, {}],
+      [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
+      [{}, tile(3), tile(1), tile(7), tile(7), {}, tile(5), {}],
+      [tile(1), {}, {}, {}, {}, {}, {}, {}],
+      [{}, tile(1), {}, {}, tile(4), tile(1), tile(5), {}],
+      [{}, tile(4), tile(6), tile(4), tile(1), {}, {}, {}],
+      [{}, {}, {}, tile(1), {}, tile(3), tile(1), tile(6)],
+      [tile(1), {}, {}, {}, {}, tile(1), {}, {}],
+    ],
+    number: 0,
+    message: '',
+  },
+  methods: {
+    play: function (i, j) {
+      console.log('Uso sam u plej.');
+      // ovo mogu i da ostavim i tako omogucim brisanje elemenata
+      if (this.startingBoard[i][j].value !== undefined) {
+        console.log('Prvi if.')
+        console.log('this.startingBoard[i][j].value', this.startingBoard[i][j].value)
+        this.number = this.startingBoard[i][j].value
+        console.log('number: ', this.number)
+      } else {
+        if (this.number === 0) {
+          this.displayMessage('Choose your number first.')
+        } else {
+          console.log('Za upis: ', i, j)
+          this.startingBoard = displayBoard(this.startingBoard, [i, j], this.number)
+          console.log('Starting board: ', this.startingBoard)
+          if (this.checkPolyomino(this.startingBoard, i, j, this.number)) {
+            this.displayMessage('You\'ve created polyomino! :D')
+          } else {
+            setStatusToZero(this.startingBoard, i, j, this.number)
+          }
+          if (countTakenFields(this.startingBoard) === Math.pow(this.startingBoard.length, 2)) {
+            this.checkWinner(this.startingBoard)
+          }
+        }
+      }
     },
-    methods: {
-        
-        play: function (i, j) {
-            console.log('Uso sam u plej.')
-            // ovo mogu i da ostavim i tako omogucim brisanje elemenata
-            if (this.startingBoard[i][j].value != undefined) {
-                console.log('Prvi if.')
-                console.log("this.startingBoard[i][j].value ", this.startingBoard[i][j].value)
-                this.number = this.startingBoard[i][j].value
-                console.log('number: ', this.number)
-            }
-            else {
-                if (this.number == 0) {
-                    this.displayMessage('Choose your number first.')
-                }
-                else {
-                    console.log('Za upis: ', i, j)
-                    this.startingBoard = displayBoard(this.startingBoard, [i, j], this.number)
-                    console.log('Starting board: ', this.startingBoard)
-                    if (this.checkPolyomino(this.startingBoard, i, j, this.number)) {
-                        this.displayMessage('You\'ve created polyomino! :D')
-                    }
-                    else {
-                        setStatusToZero(this.startingBoard, i, j, this.number)
-                    }
-                    if (countTakenFields(this.startingBoard) == Math.pow(this.startingBoard.length, 2)) {
-                        this.checkWinner(this.startingBoard)
-                    }
-                }
-            }
-        },
-        checkPolyomino: function (board, i, j, number) {
+    checkPolyomino: function (board, i, j, number) {
+      const counter = countNeighbours(board, i, j, number)
+      if (counter > number) {
+        this.displayMessage('Look what you\'ve done, bro.')
+      }
+      return counter === number
+    },
+    checkWinner: function (board) {
+      const check = board.some(row => row.some(checkStatus))
+      check ? this.displayMessage('Think a bit more.') :
+        this.displayMessage('Awesome! :D')
+    },
+    reset: function (i, j) {
+      event.preventDefault()
+      if (this.startingBoard[i][j].default_) {
+        return
+      }
+      // Ako je izbrisani element deo polyomino-a, onda
+      // moramo da razbijemo polyomino postavljajuci
+      // status svim ostalim clanovima na nulu
+      if (this.startingBoard[i][j].status === 1) {
+        setStatusToZero(this.startingBoard, i, j, this.startingBoard[i][j].value)
+      }
 
-            var counter = countNeighbours(board, i, j, number)
-            if (counter > number) {
-                this.displayMessage('Look what you\'ve done, bro.')
-            }
-            return counter == number
-        },
-        checkWinner: function (board) {
-            var check = board.some(row => {
-                return row.some(checkStatus)
-            })
-            check ? this.displayMessage('Think a bit more.') : 
-              this.displayMessage('Awesome! :D')
-        },
-        reset: function (i, j) {
-            event.preventDefault()
-            if (this.startingBoard[i][j].default_) {
-                return
-            }
-            //Ako je izbrisani element deo polyomino-a, onda
-            //moramo da razbijemo polyomino postavljajuci
-            //status svim ostalim clanovima na nulu
-            
-                if (this.startingBoard[i][j].status == 1) {
-                    setStatusToZero(this.startingBoard, i, j, this.startingBoard[i][j].value)
-
-                }
-            
-                this.startingBoard = displayBoard(this.startingBoard, [i, j], undefined)
-                this.checkPolyominoAfterReset(this.startingBoard, i, j)
-                //startingBoard gadjam globalno, jebiga
-
-        },
-        checkPolyominoAfterReset: function (board, i, j) {
-            if (i > 0) {
-                if (!this.checkPolyomino(board, i - 1, j, board[i - 1][j].value)) {
-                    setStatusToZero(board, i - 1, j, board[i - 1][j].value)
-                }
-            }
-            if (i < board.length - 1) {
-                if (!this.checkPolyomino(board, i + 1, j, board[i + 1][j].value)) {
-                    setStatusToZero(board, i + 1, j, board[i + 1][j].value)
-                }
-            }
-            if (j > 0) {
-                if (!this.checkPolyomino(board, i, j - 1, board[i][j - 1].value)) {
-                    setStatusToZero(board, i, j - 1, board[i][j - 1].value)
-                }
-            }
-            if (j < board.length - 1) {
-                if (!this.checkPolyomino(board, i, j + 1, board[i][j + 1].value)) {
-                    setStatusToZero(board, i, j + 1, board[i][j + 1].value)
-                }
-            }
-
-        },
-        displayMessage: function (message) {
-            this.message = message.toString()
-            setTimeout(() => this.message = '', 1000)
-        },
-    }
+      this.startingBoard = displayBoard(this.startingBoard, [i, j], undefined)
+      this.checkPolyominoAfterReset(this.startingBoard, i, j)
+      // startingBoard gadjam globalno, jebiga
+    },
+    checkPolyominoAfterReset: function (board, i, j) {
+      if (i > 0) {
+        if (!this.checkPolyomino(board, i - 1, j, board[i - 1][j].value)) {
+          setStatusToZero(board, i - 1, j, board[i - 1][j].value)
+        }
+      }
+      if (i < board.length - 1) {
+        if (!this.checkPolyomino(board, i + 1, j, board[i + 1][j].value)) {
+          setStatusToZero(board, i + 1, j, board[i + 1][j].value)
+        }
+      }
+      if (j > 0) {
+        if (!this.checkPolyomino(board, i, j - 1, board[i][j - 1].value)) {
+          setStatusToZero(board, i, j - 1, board[i][j - 1].value)
+        }
+      }
+      if (j < board.length - 1) {
+        if (!this.checkPolyomino(board, i, j + 1, board[i][j + 1].value)) {
+          setStatusToZero(board, i, j + 1, board[i][j + 1].value)
+        }
+      }
+    },
+    displayMessage: function (message) {
+      this.message = message.toString()
+      setTimeout(() => this.message = '', 1000)
+    },
+  },
 })
-
-//.js part
+// .js part
 function countNeighbours(board, i, j, number) {
-    if (checkBoundaries(board, i, j) && board[i][j].value != undefined && board[i][j].status == 0 && board[i][j].value == number) {
-        board[i][j].status = 1
-
-        var counter = 1
-        if (j > 0) {
-            counter += countNeighbours(board, i, j - 1, number)
-        }
-        if (j < board.length - 1) {
-            counter += countNeighbours(board, i, j + 1, number)
-        }
-        if (i > 0) {
-            counter += countNeighbours(board, i - 1, j, number)
-        }
-        if (i < board.length - 1) {
-            counter += countNeighbours(board, i + 1, j, number)
-        }
-        return counter
-        //return 1 + countNeighbours(board, i, j - 1, number) + countNeighbours(board, i, j + 1, number) +
-        //  countNeighbours(board, i + 1, j, number) + countNeighbours(board, i - 1, j, number)
+  let counter = 1
+  if (checkBoundaries(board, i, j) && board[i][j].value !== undefined && board[i][j].status === 0 && board[i][j].value === number) {
+    board[i][j].status = 1
+    if (j > 0) {
+      counter += countNeighbours(board, i, j - 1, number)
     }
-    return 0
-}
-
-function checkStatus(element, index, array) {
-
-    if (element.value != 1) {
-        return element.status == 0
+    if (j < board.length - 1) {
+      counter += countNeighbours(board, i, j + 1, number)
     }
-    //Obrati paznju, ovde moras da vratis `false`, ne `true`.
-    //Jer ako vratis true
-    //ispasce da postoji neki koji nije spojen, a kec
-    //je uvek spojen.
-    return false
-}
-
-function displayBoard(board, index, number) {
-    const boardClone = [...board.map(row => ([...row]))]
-    boardClone[index[0]][index[1]] = {value: number, status: 0}
-    console.log('Displej: ', boardClone)
-    return boardClone
-}
-
-function countTakenFields(board) {
-    var counter = 0
-    board.forEach(row => {
-        row.forEach(cell => {
-            if (cell.value != undefined) {
-                counter++
-            }
-        })
-    })
+    if (i > 0) {
+      counter += countNeighbours(board, i - 1, j, number)
+    }
+    if (i < board.length - 1) {
+      counter += countNeighbours(board, i + 1, j, number)
+    }
     return counter
+    // return 1 + countNeighbours(board, i, j - 1, number) + countNeighbours(board, i, j + 1, number) +
+    // countNeighbours(board, i + 1, j, number) + countNeighbours(board, i - 1, j, number)
+  }
+  return 0
 }
 
-function setStatusToZero(board, i, j, number) {
-    if (number != 1) {
-        if (checkBoundaries(board, i, j) && board[i][j].value != undefined && board[i][j].status == 1 && board[i][j].value == number) {
-            board[i][j].status = 0
-
-            if (j > 0) {
-                setStatusToZero(board, i, j - 1, number)
-            }
-            if (j < board.length - 1) {
-                setStatusToZero(board, i, j + 1, number)
-            }
-            if (i < board.length - 1) {
-                setStatusToZero(board, i + 1, j, number)
-            }
-            if (i > 0) {
-                setStatusToZero(board, i - 1, j, number)
-            }
-        }
-    }
-}
-
-function checkBoundaries(board, i, j) {
-    return i >= 0 && i < board.length && j >= 0 && j < board.length
+function checkStatus(element) {
+  if (element.value !== 1) {
+    return element.status === 0
+  }
+  // Obrati paznju, ovde moras da vratis `false`, ne `true`.
+  // Jer ako vratis true
+  // ispasce da postoji neki koji nije spojen, a kec
+  // je uvek spojen.
+  return false
 }
