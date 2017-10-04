@@ -1,0 +1,22 @@
+{
+    "extends": "airbnb-base",
+    "plugins": [
+        "import"
+    ],
+    "rules": {
+        "no-undef": "off",
+        "linebreak-style": "off",
+        "no-new": "off",
+        "semi": "off",
+        "no-underscore-dangle": "off",
+        "no-restricted-globals": "off",
+        "object-shorthand": "off",
+        "no-lonely-if": "off",        
+        "no-param-reassign": "off",
+        "no-return-assign": "off",
+        "no-restricted-properties": "off",
+        "no-unused-expressions": "off"
+    }
+    
+    
+}
