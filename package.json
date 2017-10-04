@@ -1,0 +1,29 @@
+{
+  "name": "fillomino", 
+  "version": "1.0.0",
+  "description": "",
+  "main": "fillomino.js",
+  "scripts": {
+    "lint": "eslint fllomino.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "indent-fix": "eslint indent --fix fillomino.js",
+    "fix-all": "eslint --fix fillomino.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pripovedac/Fillomino.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pripovedac/Fillomino/issues"
+  },
+  "homepage": "https://github.com/Pripovedac/Fillomino#readme",
+  "devDependencies": {
+    "eslint": "^4.7.2",
+    "eslint-config-airbnb-base": "^12.0.1",
+    "eslint-plugin-import": "^2.7.0",
+    "install-peers": "^1.0.2",
+    "eslint-config-airbnb": "^15.1.0"
+  }
+}
