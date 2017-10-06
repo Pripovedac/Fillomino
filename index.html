@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Fillomino</title>
     <link href="styles.css" rel="stylesheet" />
-    <h2>Fillomino</h2>
 </head>
+
 <body>
+    <h1>Fillomino</h1>
     <div id="Fillomino">
         <fillomino-board @play="play" @reset="reset" :values="startingBoard"></fillomino-board>
-    <div id="message" v-if="message != ''">
-        <span>{{ message }}</span>
-    </div>
+        <div id="message" v-if="message != ''">
+            <span>{{ message }}</span>
+        </div>
     </div>
     <script src="https://unpkg.com/vue"></script>
     <script src="fillomino.js"></script>
 </body>
+
 </html>

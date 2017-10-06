@@ -1,3 +1,5 @@
+/* eslint-disable no-alert, no-console, func-names  */ // Eslint comand for disabling warnings
+
 function displayBoard(board, index, number) {
   const boardClone = [...board.map(row => ([...row]))]
   boardClone[index[0]][index[1]] = { value: number, status: 0 }
@@ -16,13 +18,15 @@ function countTakenFields(board) {
   })
   return counter
 }
+
 function checkBoundaries(board, i, j) {
   return i >= 0 && i < board.length && j >= 0 && j < board.length
 }
 
 function setStatusToZero(board, i, j, number) {
   if (number !== 1) {
-    if (checkBoundaries(board, i, j) && board[i][j].value !== undefined && board[i][j].status === 1 && board[i][j].value === number) {
+    if (checkBoundaries(board, i, j) && board[i][j].value !== undefined
+      && board[i][j].status === 1 && board[i][j].value === number) {
       board[i][j].status = 0
       if (j > 0) {
         setStatusToZero(board, i, j - 1, number)
@@ -38,6 +42,43 @@ function setStatusToZero(board, i, j, number) {
       }
     }
   }
+}
+
+function countNeighbours(board, i, j, number) {
+  let counter = 1
+  if (checkBoundaries(board, i, j) && board[i][j].value !== undefined
+    && board[i][j].status === 0 && board[i][j].value === number) {
+    board[i][j].status = 1
+    if (j > 0) {
+      counter += countNeighbours(board, i, j - 1, number)
+    }
+    if (j < board.length - 1) {
+      counter += countNeighbours(board, i, j + 1, number)
+    }
+    if (i > 0) {
+      counter += countNeighbours(board, i - 1, j, number)
+    }
+    if (i < board.length - 1) {
+      counter += countNeighbours(board, i + 1, j, number)
+    }
+    return counter
+    // return 1 + countNeighbours(board, i, j - 1, number) +
+    // countNeighbours(board, i, j + 1, number) +
+    // countNeighbours(board, i + 1, j, number) +
+    // countNeighbours(board, i - 1, j, number)
+  }
+  return 0
+}
+
+function checkStatus(element) {
+  if (element.value !== 1) {
+    return element.status === 0
+  }
+  // Obrati paznju, ovde moras da vratis `false`, ne `true`.
+  // Jer ako vratis true
+  // ispasce da postoji neki koji nije spojen, a kec
+  // je uvek spojen.
+  return false
 }
 
 Vue.component('fillomino-board', {
@@ -57,21 +98,29 @@ Vue.component('fillomino-board', {
 
 Vue.component('board-cell', {
   template: `
-    <div class="board-cell">
+    <div v-bind:class="{setfield : checkDefault(symbol)}">
       <span> {{ symbol.value }} </span>
       <!-- <button id='reset'>x</button> -->
     </div>
     `,
   props: ['symbol'],
+  methods: {
+    checkDefault: function (field) {
+      return field.default_
+    },
+  },
 });
 
-const tile = (value = undefined, status = 0, default_ = value !== undefined) => ({ value, status, default_ });
+const tile = (value = undefined, status = 0, default_ = value !== undefined) =>
+  ({ value, status, default_ });
 
 new Vue({
   el: '#Fillomino',
   data: {
   // Status 0 => element nije clan poliomina
   // Status 1 => element jeste clan poliomina
+  //  isActive: true,
+    default_: true,
     startingBoard: [
       [tile(1), {}, {}, {}, {}, {}, {}, {}],
       [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
@@ -112,6 +161,7 @@ new Vue({
         }
       }
     },
+
     checkPolyomino: function (board, i, j, number) {
       const counter = countNeighbours(board, i, j, number)
       if (counter > number) {
@@ -166,39 +216,8 @@ new Vue({
       this.message = message.toString()
       setTimeout(() => this.message = '', 1000)
     },
+    checkDefault: function (field) {
+      return field.value === undefined
+    },
   },
 })
-// .js part
-function countNeighbours(board, i, j, number) {
-  let counter = 1
-  if (checkBoundaries(board, i, j) && board[i][j].value !== undefined && board[i][j].status === 0 && board[i][j].value === number) {
-    board[i][j].status = 1
-    if (j > 0) {
-      counter += countNeighbours(board, i, j - 1, number)
-    }
-    if (j < board.length - 1) {
-      counter += countNeighbours(board, i, j + 1, number)
-    }
-    if (i > 0) {
-      counter += countNeighbours(board, i - 1, j, number)
-    }
-    if (i < board.length - 1) {
-      counter += countNeighbours(board, i + 1, j, number)
-    }
-    return counter
-    // return 1 + countNeighbours(board, i, j - 1, number) + countNeighbours(board, i, j + 1, number) +
-    // countNeighbours(board, i + 1, j, number) + countNeighbours(board, i - 1, j, number)
-  }
-  return 0
-}
-
-function checkStatus(element) {
-  if (element.value !== 1) {
-    return element.status === 0
-  }
-  // Obrati paznju, ovde moras da vratis `false`, ne `true`.
-  // Jer ako vratis true
-  // ispasce da postoji neki koji nije spojen, a kec
-  // je uvek spojen.
-  return false
-}

@@ -1,74 +1,105 @@
 html {
     font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
+
 body {
-    background: #000A1C;
+    background-color: #000A1C;
 }
-h2 {
+
+h1 {
     color: #D3CFCF;
     text-align: center
 }
+
 #fillominoBoard {
-    margin: auto;
     display: flex;
-    flex-direction: column;   
+    flex-direction: column;
+    flex-basis: auto; 
     padding-bottom: 20px;
     padding-top: 20px;
 }
 
 .board-cell {
-    animation: display;
     animation-duration: 1.5s;
     width: 50px;
     height: 50px;
+    max-height: 100%;
+    max-width: 100%;
     color: #D3CFCF;
-    text-align: center;
-    font-size: 25px;
+    font-size: 15px;
+    /* aligning items in table */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* ended alignment */
+}
+
+.setfield {
+    background-color: rgba(3, 41, 99, 0.4);
+}
+
+.board-cell:hover {
+    background: rgba(116, 163, 230, 0.39);
 }
 
 @keyframes display {
     from {opacity: 0;}
     to {opacity: 100}
 }
+
 .board-row {
     display: flex;
     margin: auto;
- }
+}
 
- .board-row:not(:last-child){
+.board-row:not(:last-child){
     border-bottom: 2px solid rgba(56, 129, 255, 0.41);
-  }
+}
   
-  .board-row > .board-cell:not(:last-child) {
+.board-row > .board-cell:not(:last-child) {
     border-right: 2px solid rgba(56, 129, 255, 0.41);;
-  }
+}
 
-  #message {
-      color:white;
-  }
-  #message {
-    /*Ovim stilizujemo gresku.*/
-    color: white;
-    pointer-events: none;
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-  }
-  #message > span {
-    font-size: 1.2em;
-    background-color:  rgba(56, 129, 255, 0.41);
-    padding: 1em 1.4em;
-    width: 100%;
-    text-align: center;
-  }
+#message {
+  /*Ovim stilizujemo gresku.*/
+  color: white;
+  pointer-events: none;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+#message > span {
+  font-size: 1.2em;
+  background-color:  rgba(56, 129, 255, 0.41);
+  padding: 1em 1.4em;
+  width: 100%;
+  text-align: center;
+}
 
-  .win{
-    animation: display;
-    animation-duration: 1.5s;
-  }
+.win{
+  animation: display;
+  animation-duration: 1.5s;
+}
+
+/* minimum width of the screen to fit the 
+table is 400px */
+@media screen and (max-width: 400px) {
+    #fillominoBoard, .board-cell, .board-row {
+        width: 100%;
+    }
+}
+@media screen and (max-height: 500px) {
+    #fillominoBoard, .board-cell, .board-row {
+        height: 100%;
+    }
+    .board-cell {
+        min-height: 20px;
+    }
+}
+
