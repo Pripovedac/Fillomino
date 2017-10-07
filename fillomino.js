@@ -75,7 +75,7 @@ function checkStatus(element) {
   if (element.value !== 1) {
     return element.status === 0
   }
-  // Pay attention here: returned values is `false`, not `true`.
+  // Pay attention here: returned value is `false`, not `true`.
   // 'Cause if it's otherwise it will mean that some `1` is
   // not conected, and `1` is always conected.
   return false
@@ -107,8 +107,8 @@ Vue.component('board-cell', {
 Vue.component('fillomino-board', {
   template: `
     <div id="fillominoBoard" class="filominoBoard">
-      <div class="board-row" v-for="(row, i) in values">
-        <board-cell class="board-cell" v-for="(cell, j) of row"
+      <div class="board-row" v-for="(row, i) in values" :key="i">
+        <board-cell class="board-cell" v-for="(cell, j) of row" :key="j"
           :symbol="cell"
           @click.native="$emit('play', i, j)"
           @contextmenu.native="$emit('reset', i, j)">
@@ -282,7 +282,7 @@ function deselectPreviousCell(rows, currRow, currCell) {
     selectedCell.style.background = '#000A1C'
   /* fixing hover bug */
   // Problem explained:
-  // Cells visited using keyboard didn't suport hover effect
+  // Cells visited using keyboard didn't support hover effect
   // specified in .css file.
   selectedCell.onmouseover = function () {
     this.style.backgroundColor = 'rgba(116, 163, 230, 0.39)';
@@ -323,4 +323,3 @@ $(document).keydown(function (e) {
 })
 /* Keyboard navigation ended */
 
-changeCell(tableRow, currentRow, currentCell)

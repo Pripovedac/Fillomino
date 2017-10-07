@@ -1,3 +1,3 @@
 # Fillomino
-# Nek se narod smeje!
-# Prvi git projekat. 
+# First repository created using Git
+# by beginner in web development. 
