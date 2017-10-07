@@ -81,6 +81,29 @@ function checkStatus(element) {
   return false
 }
 
+let playFlag = true
+
+Vue.component('board-cell', {
+  template: `
+    <div v-bind:class="{setfield : checkDefault(symbol)}">
+      <span> {{ symbol.value }} </span>
+      <div v-if="!checkDefault(symbol)">
+        <button class='reset'
+        @click=switchToReset>x</button>
+      </div>
+    </div>
+    `,
+  props: ['symbol'],
+  methods: {
+    checkDefault: function (field) {
+      return field.default_
+    },
+    switchToReset: function () {
+      playFlag = false;
+    },
+  },
+});
+
 Vue.component('fillomino-board', {
   template: `
     <div id="fillominoBoard" class="filominoBoard">
@@ -96,21 +119,6 @@ Vue.component('fillomino-board', {
   props: ['values'],
 });
 
-Vue.component('board-cell', {
-  template: `
-    <div v-bind:class="{setfield : checkDefault(symbol)}">
-      <span> {{ symbol.value }} </span>
-      <!-- <button id='reset'>x</button> -->
-    </div>
-    `,
-  props: ['symbol'],
-  methods: {
-    checkDefault: function (field) {
-      return field.default_
-    },
-  },
-});
-
 const tile = (value = undefined, status = 0, default_ = value !== undefined) =>
   ({ value, status, default_ });
 
@@ -119,8 +127,6 @@ new Vue({
   data: {
   // Status 0 => element nije clan poliomina
   // Status 1 => element jeste clan poliomina
-  //  isActive: true,
-    default_: true,
     startingBoard: [
       [tile(1), {}, {}, {}, {}, {}, {}, {}],
       [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
@@ -136,29 +142,39 @@ new Vue({
   },
   methods: {
     play: function (i, j) {
-      console.log('Uso sam u plej.');
-      // ovo mogu i da ostavim i tako omogucim brisanje elemenata
-      if (this.startingBoard[i][j].value !== undefined) {
-        console.log('Prvi if.')
-        console.log('this.startingBoard[i][j].value', this.startingBoard[i][j].value)
-        this.number = this.startingBoard[i][j].value
-        console.log('number: ', this.number)
-      } else {
-        if (this.number === 0) {
-          this.displayMessage('Choose your number first.')
+      if (playFlag) {
+        console.log('Uso sam u plej.')
+        deselectPreviousCell(tableRow, currentRow, currentCell)
+        currentRow = i
+        currentCell = j
+        changeCell(tableRow, currentRow, currentCell)
+        console.log(currentRow, currentCell)
+        // ovo mogu i da ostavim i tako omogucim brisanje elemenata
+        if (this.startingBoard[i][j].value !== undefined) {
+          console.log('Prvi if.')
+          console.log('this.startingBoard[i][j].value', this.startingBoard[i][j].value)
+          this.number = this.startingBoard[i][j].value
+          console.log('number: ', this.number)
         } else {
-          console.log('Za upis: ', i, j)
-          this.startingBoard = displayBoard(this.startingBoard, [i, j], this.number)
-          console.log('Starting board: ', this.startingBoard)
-          if (this.checkPolyomino(this.startingBoard, i, j, this.number)) {
-            this.displayMessage('You\'ve created polyomino! :D')
+          if (this.number === 0) {
+            this.displayMessage('Choose your number first.')
           } else {
-            setStatusToZero(this.startingBoard, i, j, this.number)
-          }
-          if (countTakenFields(this.startingBoard) === Math.pow(this.startingBoard.length, 2)) {
-            this.checkWinner(this.startingBoard)
+            console.log('Za upis: ', i, j)
+            this.startingBoard = displayBoard(this.startingBoard, [i, j], this.number)
+            console.log('Starting board: ', this.startingBoard)
+            if (this.checkPolyomino(this.startingBoard, i, j, this.number)) {
+              this.displayMessage('You\'ve created polyomino! :D')
+            } else {
+              setStatusToZero(this.startingBoard, i, j, this.number)
+            }
+            if (countTakenFields(this.startingBoard) === Math.pow(this.startingBoard.length, 2)) {
+              this.checkWinner(this.startingBoard)
+            }
           }
         }
+      } else {
+        playFlag = true
+        this.reset(i, j)
       }
     },
 
@@ -175,6 +191,7 @@ new Vue({
         this.displayMessage('Awesome! :D')
     },
     reset: function (i, j) {
+      console.log('reset entered')
       event.preventDefault()
       if (this.startingBoard[i][j].default_) {
         return
@@ -216,8 +233,82 @@ new Vue({
       this.message = message.toString()
       setTimeout(() => this.message = '', 1000)
     },
-    checkDefault: function (field) {
-      return field.value === undefined
+    restart: function () {
+      this.startingBoard = [
+        [tile(1), {}, {}, {}, {}, {}, {}, {}],
+        [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
+        [{}, tile(3), tile(1), tile(7), tile(7), {}, tile(5), {}],
+        [tile(1), {}, {}, {}, {}, {}, {}, {}],
+        [{}, tile(1), {}, {}, tile(4), tile(1), tile(5), {}],
+        [{}, tile(4), tile(6), tile(4), tile(1), {}, {}, {}],
+        [{}, {}, {}, tile(1), {}, tile(3), tile(1), tile(6)],
+        [tile(1), {}, {}, {}, {}, tile(1), {}, {}],
+      ]
     },
   },
 })
+
+/* Keyboard navigation */
+let currentRow = 0;
+let currentCell = 0;
+const tableRow = document.getElementsByClassName('board-row')
+const numOfRows = tableRow.length
+const numOfCells = tableRow[0].childNodes.length
+
+function changeCell(rows, currRow, currCell) {
+  const selectedRow = rows[currRow]
+  const selectedCell = selectedRow.childNodes[currCell];
+  selectedCell.style.background = 'rgba(116, 163, 230, 0.39)'
+}
+
+function deselectPreviousCell(rows, currRow, currCell) {
+  const selectedRow = rows[currentRow]
+  const selectedCell = selectedRow.childNodes[currCell];
+  selectedCell.classList.value === 'board-cell setfield' ? selectedCell.style.background = 'rgba(5, 70, 161, 0.16)' :
+    selectedCell.style.background = '#000A1C'
+  /* fixing hover bug */
+  // Problem explained:
+  // Cells visited using keyboard didn't suport hover effect
+  // specified in .css file.
+  selectedCell.onmouseover = function () {
+    this.style.backgroundColor = 'rgba(116, 163, 230, 0.39)';
+  }
+  selectedCell.onmouseleave = function () {
+    selectedCell.classList.value === 'board-cell setfield' ? selectedCell.style.background = 'rgba(5, 70, 161, 0.16)' :
+      selectedCell.style.background = '#000A1C'
+  }
+  /* fixing hover bug done */
+}
+
+
+$(document).keydown(function (e) {
+  // keyCode = 37 - left arrow key
+  if (e.keyCode === 37 && currentCell > 0) {
+    deselectPreviousCell(tableRow, currentRow, currentCell)
+    currentCell -= 1;
+    changeCell(tableRow, currentRow, currentCell)
+  }
+  // keyCode = 38 - upper arrow key
+  if (e.keyCode === 38 && currentRow > 0) {
+    deselectPreviousCell(tableRow, currentRow, currentCell)
+    currentRow -= 1
+    changeCell(tableRow, currentRow, currentCell)
+  }
+  // keyCode = 39 - right arrow key
+  if (e.keyCode === 39 && currentCell < numOfCells - 1) {
+    deselectPreviousCell(tableRow, currentRow, currentCell)
+    currentCell += 1;
+    changeCell(tableRow, currentRow, currentCell)
+  }
+  // keyCode = 40 - lower arrow key
+  if (e.keyCode === 40 && currentRow < numOfRows - 1) {
+    deselectPreviousCell(tableRow, currentRow, currentCell)
+    currentRow += 1;
+    changeCell(tableRow, currentRow, currentCell)
+  }
+})
+/* Keyboard navigation ended */
+
+changeCell(tableRow, currentRow, currentCell)
+
+console.log('CurrentRow, CurrentCell: ', currentRow, currentCell)

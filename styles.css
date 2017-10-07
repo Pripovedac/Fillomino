@@ -17,6 +17,7 @@ h1 {
     flex-basis: auto; 
     padding-bottom: 20px;
     padding-top: 20px;
+    margin-bottom: 20px;
 }
 
 .board-cell {
@@ -32,14 +33,18 @@ h1 {
     align-items: center;
     justify-content: center;
     /* ended alignment */
-}
-
-.setfield {
-    background-color: rgba(3, 41, 99, 0.4);
+    /* added to put buttons in top
+    right corners of board-cells*/
+    position: relative;
+    cursor: pointer
 }
 
 .board-cell:hover {
     background: rgba(116, 163, 230, 0.39);
+}
+
+.setfield {
+    background-color: rgba(3, 41, 99, 0.4);
 }
 
 @keyframes display {
@@ -60,6 +65,46 @@ h1 {
     border-right: 2px solid rgba(56, 129, 255, 0.41);;
 }
 
+.reset {
+    border: none;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0px;
+    font-size: 10px;
+    color: white;
+    align-content: center;
+    /* An element with position: absolute; is positioned relative to the 
+    nearest positioned ancestor (instead of positioned relative to the viewport, like fixed).
+    However; if an absolute positioned element has no positioned ancestors,
+    it uses the document body, and moves along with page scrolling.*/
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background: rgba(0, 204, 255, 0.28);
+}
+#restart {
+    text-align: center;
+    background: rgba(3, 41, 99, 0.4);
+    border: 1px solid;
+    border-radius: 12px;
+    border-color: #eee;
+    color: #eee;
+    width: 100px;
+    height: 25px;
+    display: flex;
+    margin: 0 auto;
+    /* determining the speed of 'hover' effect */
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+#restart:hover {
+    background-color: #eee; /* Green */
+    color: rgb(43, 12, 248);
+    border-color: rgba(3, 41, 99, 0.4);
+}
 #message {
   /*Ovim stilizujemo gresku.*/
   color: white;
@@ -82,16 +127,21 @@ h1 {
   text-align: center;
 }
 
-.win{
+.win {
   animation: display;
   animation-duration: 1.5s;
 }
 
+/* we are using `media screen` to ajdust the size of
+the table on screens smaller than its size */
+@media screen and (max-width: 400px) {
 /* minimum width of the screen to fit the 
 table is 400px */
-@media screen and (max-width: 400px) {
-    #fillominoBoard, .board-cell, .board-row {
+    #fillominoBoard, .board-cell, .board-row{
         width: 100%;
+    }
+    #resetGame {
+        width: 20%;
     }
 }
 @media screen and (max-height: 500px) {
