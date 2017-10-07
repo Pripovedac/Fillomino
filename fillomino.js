@@ -62,6 +62,7 @@ function countNeighbours(board, i, j, number) {
       counter += countNeighbours(board, i + 1, j, number)
     }
     return counter
+    // First idea:
     // return 1 + countNeighbours(board, i, j - 1, number) +
     // countNeighbours(board, i, j + 1, number) +
     // countNeighbours(board, i + 1, j, number) +
@@ -74,10 +75,9 @@ function checkStatus(element) {
   if (element.value !== 1) {
     return element.status === 0
   }
-  // Obrati paznju, ovde moras da vratis `false`, ne `true`.
-  // Jer ako vratis true
-  // ispasce da postoji neki koji nije spojen, a kec
-  // je uvek spojen.
+  // Pay attention here: returned values is `false`, not `true`.
+  // 'Cause if it's otherwise it will mean that some `1` is
+  // not conected, and `1` is always conected.
   return false
 }
 
@@ -119,14 +119,26 @@ Vue.component('fillomino-board', {
   props: ['values'],
 });
 
+Vue.component('button-row', {
+  template: `
+    <div id="buttonContainer">
+    <label>Pick a number:</label>    
+      <button class="button-row" 
+      v-for="(number, i) in digits"
+      @click="$emit('getnumber', i)">{{number}}</button>
+    </div>
+  `,
+  props: ['digits'],
+})
+
 const tile = (value = undefined, status = 0, default_ = value !== undefined) =>
   ({ value, status, default_ });
 
 new Vue({
   el: '#Fillomino',
   data: {
-  // Status 0 => element nije clan poliomina
-  // Status 1 => element jeste clan poliomina
+  // Status 0 => element is part of the polyomino
+  // Status 1 => element is not part of the polyomino
     startingBoard: [
       [tile(1), {}, {}, {}, {}, {}, {}, {}],
       [tile(2), tile(1), tile(8), {}, {}, tile(1), tile(3), tile(1)],
@@ -138,6 +150,7 @@ new Vue({
       [tile(1), {}, {}, {}, {}, tile(1), {}, {}],
     ],
     number: 0,
+    digits: [1, 2, 3, 4, 5, 6, 7, 8],
     message: '',
   },
   methods: {
@@ -149,7 +162,6 @@ new Vue({
         currentCell = j
         changeCell(tableRow, currentRow, currentCell)
         console.log(currentRow, currentCell)
-        // ovo mogu i da ostavim i tako omogucim brisanje elemenata
         if (this.startingBoard[i][j].value !== undefined) {
           console.log('Prvi if.')
           console.log('this.startingBoard[i][j].value', this.startingBoard[i][j].value)
@@ -196,16 +208,15 @@ new Vue({
       if (this.startingBoard[i][j].default_) {
         return
       }
-      // Ako je izbrisani element deo polyomino-a, onda
-      // moramo da razbijemo polyomino postavljajuci
-      // status svim ostalim clanovima na nulu
+      // If deleted element was part of the polyomino
+      // then that polyomino has to be destroyed
+      // by setting its parts' status to zero.
       if (this.startingBoard[i][j].status === 1) {
         setStatusToZero(this.startingBoard, i, j, this.startingBoard[i][j].value)
       }
 
       this.startingBoard = displayBoard(this.startingBoard, [i, j], undefined)
       this.checkPolyominoAfterReset(this.startingBoard, i, j)
-      // startingBoard gadjam globalno, jebiga
     },
     checkPolyominoAfterReset: function (board, i, j) {
       if (i > 0) {
@@ -244,6 +255,9 @@ new Vue({
         [{}, {}, {}, tile(1), {}, tile(3), tile(1), tile(6)],
         [tile(1), {}, {}, {}, {}, tile(1), {}, {}],
       ]
+    },
+    getNumber: function (index) {
+      this.number = index + 1
     },
   },
 })
@@ -310,5 +324,3 @@ $(document).keydown(function (e) {
 /* Keyboard navigation ended */
 
 changeCell(tableRow, currentRow, currentCell)
-
-console.log('CurrentRow, CurrentCell: ', currentRow, currentCell)

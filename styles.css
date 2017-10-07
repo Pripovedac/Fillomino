@@ -85,7 +85,7 @@ h1 {
     right: 0px;
     background: rgba(0, 204, 255, 0.28);
 }
-#restart {
+#restart, .button-row {
     text-align: center;
     background: rgba(3, 41, 99, 0.4);
     border: 1px solid;
@@ -96,14 +96,35 @@ h1 {
     height: 25px;
     display: flex;
     margin: 0 auto;
+    margin-bottom: 20px;
+    /* justifing content of the button */
+    justify-content: center;
     /* determining the speed of 'hover' effect */
     -webkit-transition-duration: 0.4s;
     transition-duration: 0.4s;
 }
-#restart:hover {
+#restart:hover,.button-row:hover {
     background-color: #eee; /* Green */
     color: rgb(43, 12, 248);
     border-color: rgba(3, 41, 99, 0.4);
+}
+
+#buttonContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 400px;
+    margin: 0 auto;
+}
+.button-row {
+    width: 30px;
+    margin: 5px;
+    text-align: center;
+    justify-content: center;
+}
+label {
+    color:white;
+    margin-right: 10px;
 }
 #message {
   /*Ovim stilizujemo gresku.*/
@@ -137,19 +158,31 @@ the table on screens smaller than its size */
 @media screen and (max-width: 400px) {
 /* minimum width of the screen to fit the 
 table is 400px */
-    #fillominoBoard, .board-cell, .board-row{
+    #fillominoBoard, .board-cell, .board-row {
         width: 100%;
     }
     #resetGame {
         width: 20%;
     }
+    #buttonContainer{
+        width: 100%;
+    } 
+    label, {
+        display: none;
+    }
+    .reset {
+        width:50%;
+    }
+    
 }
 @media screen and (max-height: 500px) {
-    #fillominoBoard, .board-cell, .board-row {
-        height: 100%;
+    #fillominoBoard, .board-cell, .board-row{
+        height: 50%;
     }
     .board-cell {
         min-height: 20px;
     }
+    .reset{
+        height: 50%;
+    }
 }
-
